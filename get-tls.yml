@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  connection: local
+  become: no
+
+  vars:
+    TECH_DOMAIN: "tech-domain.club"
+
+  vars_files: vars/hetzner_dns.yml
+
+  tasks:
+  - name: Date and time
+    debug:
+      msg: "{{ ansible_date_time.date }} {{ ansible_date_time.time }}"
+
+  - name: Create or Update certs\keys
+    shell: /root/.acme.sh/acme.sh --issue -d {{ item }} --challenge-alias {{ TECH_DOMAIN }} --dns dns_hetzner --dnssleep 30 && echo \n
+    ignore_errors: yes
+    environment:
+      HETZNER_Token: "{{ htz_dns_token }}"
+    loop:
+      - "itdog.info"
+
+  - name: Create or Update certs\keys wildcard+fqdn
+    shell: /root/.acme.sh/acme.sh --issue -d {{ item.wildcard }} -d {{ item.fqdn }} --challenge-alias {{ TECH_DOMAIN }} --dns dns_hetzner --dnssleep 30 && echo \n
+    ignore_errors: yes
+    environment:
+      HETZNER_Token: "{{ htz_dns_token }}"
+    loop:
+      - { wildcard: '*.itdog.info', fqdn: 'itdog.info' }

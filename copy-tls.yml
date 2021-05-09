@@ -1,0 +1,80 @@
+---
+- hosts: tls-hosts
+  become: no
+
+  tasks:
+  - name: Date and time
+    debug:
+      msg: "{{ ansible_date_time.date }} {{ ansible_date_time.time }}"
+
+  - name: "copy {{ DOMAIN }} cert"
+    copy:
+      backup: yes
+      src: "/root/.acme.sh/{{ DOMAIN }}/{{ item }}"
+      dest: "{{ tls_path }}"
+    with_items:
+      - fullchain.cer
+      - "{{ DOMAIN }}.key"
+    notify:
+      - nginx reload
+
+  - name: Check tls file
+    stat:
+      path: "{{ tls_path }}/{{ DOMAIN }}.key"
+    register: cert_valid
+
+  handlers:
+   - name: nginx reload
+     service: name=nginx state=reloaded
+     when: cert_valid is succeeded
+
+- hosts: tls-hosts-docker
+  become: no
+
+  tasks:
+  - name: "copy {{ DOMAIN }} cert"
+    copy:
+      backup: no
+      force: yes
+      src: "/root/.acme.sh/{{ DOMAIN }}/{{ item }}"
+      dest: "{{ tls_path }}"
+    with_items:
+      - fullchain.cer
+      - "{{ DOMAIN }}.key"
+    notify:
+      - nginx reload in docker
+
+  - name: Check tls file
+    stat:
+      path: "{{ tls_path }}/{{ DOMAIN }}.key"
+    register: cert_valid
+
+  handlers:
+   - name: nginx reload in docker
+     shell: docker exec {{ CONTAINER }} nginx -s reload
+     when: cert_valid is succeeded
+
+- hosts: tls-hosts-docker-rename
+  become: no
+
+  tasks:
+  - name: "copy {{ DOMAIN }} cert"
+    copy:
+      backup: yes
+      src: "/root/.acme.sh/{{ DOMAIN }}/{{ item.src }}"
+      dest: "{{ tls_path }}/{{ item.dest }}"
+    with_items:
+      - { src: 'fullchain.cer', dest: "{{ cert_name }}" }
+      - { src: "{{ DOMAIN }}.key", dest: "{{ key_name }}" }
+    notify:
+      - nginx reload in docker
+
+  - name: Check tls file
+    stat:
+      path: "{{ tls_path }}/{{ DOMAIN }}.key"
+    register: cert_valid
+
+  handlers:
+   - name: nginx reload in docker
+     shell: docker exec {{ CONTAINER }} nginx -s reload
+     when: cert_valid is succeeded

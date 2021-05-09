@@ -1,0 +1,34 @@
+zabbix_export:
+  version: '5.2'
+  date: '2021-05-09T11:14:28Z'
+  groups:
+    -
+      name: Custom
+  templates:
+    -
+      template: 'Check tls expire'
+      name: 'Check tls expire'
+      groups:
+        -
+          name: Custom
+      applications:
+        -
+          name: tls
+      items:
+        -
+          name: 'Expire day'
+          type: EXTERNAL
+          key: 'ssl_cert_check.sh["expire","{HOST.NAME}","{$TLS_PORT}"]'
+          delay: 6h
+          applications:
+            -
+              name: tls
+          triggers:
+            -
+              expression: '{last()}<=10'
+              name: 'Certificate will be expired soon'
+              priority: INFO
+      macros:
+        -
+          macro: '{$TLS_PORT}'
+          value: '443'

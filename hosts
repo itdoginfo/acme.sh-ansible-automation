@@ -1,0 +1,12 @@
+[tls-hosts]
+nginx.itdog.info tls_path=/etc/letsencrypt/*.itdog.info/ DOMAIN=*.itdog.info
+
+## Example for 1 host - 2 domain. example.com and example.org
+nginx.example.com-1 ansible_host=nginx.example.com tls_path=/etc/letsencrypt/*.example.com/ DOMAIN=example.com
+nginx.example.com-2 ansible_host=nginx.example.com tls_path=/etc/letsencrypt/*.example.org/ DOMAIN=example.org
+
+[tls-hosts-docker]
+docker-nginx.itdog.info tls_path=/etc/letsencrypt/*.itdog.info/ DOMAIN=*.itdog.info CONTAINER=example_nginx_1
+
+[tls-hosts-docker-rename]
+docker-zabbix.itdog.info tls_path=/root/docker-zabbix/zbx_env/etc/ssl/nginx/ DOMAIN=*.itdog.info CONTAINER=docker-zabbix_zabbix-web-nginx-pgsql_1 cert_name=ssl.crt key_name=ssl.key
