@@ -6,8 +6,10 @@ Zabbix template 5.2+
 External script: https://github.com/selivan/https-ssl-cert-check-zabbix
 
 Full description
-itdog
+https://itdog.info/acme-sh-ansible-alias-mode-avtomatiziruem-poluchenie-i-rasprostranenie-tls-sertifikatov/
 and
-habr
+https://habr.com/ru/post/562026/
 
+Youtube
+https://youtu.be/dQOVz468qUQ
 
